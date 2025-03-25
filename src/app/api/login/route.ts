@@ -36,10 +36,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Kiểm tra JWT_SECRET
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not defined in environment variables");
+    }
+
     // Tạo JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET as string,
+      secret,
       { expiresIn: "1h" }
     );
 
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
       username: user.username,
       email: user.email,
       fullName: user.fullName,
-      avatar: user.avatar,
+      avatar: user.avatar || undefined,
       role: user.role,
       token,
     };
@@ -58,7 +64,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in login:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     );
   }
