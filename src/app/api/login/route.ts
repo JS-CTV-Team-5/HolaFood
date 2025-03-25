@@ -10,7 +10,6 @@ export async function POST(request: NextRequest) {
     const body: LoginInput = await request.json();
     const { email, password } = body;
 
-    // Kiểm tra các trường bắt buộc
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -18,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Tìm user theo email
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
@@ -27,7 +25,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // So sánh mật khẩu
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return NextResponse.json(
@@ -36,20 +33,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Kiểm tra JWT_SECRET
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      throw new Error("JWT_SECRET is not defined in environment variables");
+      return NextResponse.json(
+        { error: "Server configuration error: JWT_SECRET missing" },
+        { status: 500 }
+      );
     }
 
-    // Tạo JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       secret,
       { expiresIn: "1h" }
     );
 
-    // Trả về thông tin user (không bao gồm password)
     const userResponse: UserResponse = {
       _id: user._id.toString(),
       username: user.username,
@@ -64,7 +61,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in login:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Internal server error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

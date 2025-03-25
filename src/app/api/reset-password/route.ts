@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongoose";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import { ResetPasswordInput } from "@/types";
 
 export async function POST(request: NextRequest) {
@@ -45,11 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    console.log("New hashed password:", hashedPassword);
-
-    user.password = hashedPassword;
+    user.password = newPassword;
     user.updatedAt = new Date();
     await user.save();
 

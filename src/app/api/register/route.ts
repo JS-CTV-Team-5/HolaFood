@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
     const body: RegisterInput = await request.json();
     const { username, email, password, fullName } = body;
 
-    // Kiểm tra các trường bắt buộc
     if (!username || !email || !password || !fullName) {
       return NextResponse.json(
         { error: "All fields (username, email, password, fullName) are required" },
@@ -17,7 +16,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Kiểm tra xem email hoặc username đã tồn tại chưa
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return NextResponse.json(
@@ -26,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Tạo user mới (mật khẩu sẽ được mã hóa tự động bởi pre-save hook trong UserSchema)
     const user = new User({ username, email, password, fullName });
     await user.save();
 

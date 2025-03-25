@@ -33,3 +33,12 @@ export interface UserResponse {
   role: string;
   token: string;
 }
+
+export interface ForgotPasswordInput {
+  email: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  newPassword: string;
+}
